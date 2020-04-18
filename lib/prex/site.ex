@@ -13,6 +13,8 @@ defmodule Prex.Site do
   defstruct [
     :root,
     source: "source",
+    conf: "site.yml",
+    data: nil,
     dest: "dest",
     title: "Site title",
     layout: Path.expand("../../../lib/prex/templates/new_site/templates/layout.html.eex", __ENV__.file),
@@ -20,11 +22,18 @@ defmodule Prex.Site do
     compilers: @default_compilers
   ]
 
-  def init(site_path) do
+  def init(site_path) when is_binary(site_path) do
+    init(%{root: site_path})
+  end
+
+  def init(site = %{root: root}) when is_map(site) do
     site =
-      %__MODULE__{}
-      |> assign_root(site_path)
+      %__MODULE__{root: root}
+      |> Map.merge(site)
+      |> assign_root(root)
+      |> load_site_conf()
       |> detect_resources()
+
     {:ok, site}
   end
 
@@ -42,7 +51,7 @@ defmodule Prex.Site do
     {:ok, %{site | resources: resources}}
   end
 
-  def detect_resources(site = %__MODULE__{root: root, source: source}) do
+  def detect_resources(site = %{root: root, source: source}) do
     resources =
       root
       |> Path.join(source)
@@ -67,7 +76,7 @@ defmodule Prex.Site do
   @doc """
   Eval destination path, given a Site with root, source, dest.
   """
-  def eval_destination(%__MODULE__{root: root, dest: dest}, path)  do
+  def eval_destination(%{root: root, dest: dest}, path)  do
     with {exts, final_dest} <- extensions(path),
          final_ext <- List.last(exts),
          final_dest <- final_dest <> "." <> final_ext do
@@ -77,7 +86,16 @@ defmodule Prex.Site do
     end
   end
 
-  defp assign_root(site = %__MODULE__{}, root) do
+  def load_site_conf(site = %{root: root, conf: conf}) do
+    conf_file = Path.join(root, conf)
+
+    case YamlElixir.read_from_file(conf_file) do
+      {:ok, data} -> %{site | layout: data["layout"]}
+      {:error, _} -> site
+    end
+  end
+
+  defp assign_root(site, root) do
     %{site | root: Path.expand(root)}
   end
 end

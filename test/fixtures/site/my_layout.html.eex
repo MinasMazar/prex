@@ -1,0 +1,8 @@
+<html>
+  <head>
+    <meta title="<%= site.title %>">
+  </head>
+  <body>
+    <%= content %>
+  </body>
+</html>
