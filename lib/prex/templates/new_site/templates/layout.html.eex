@@ -1,6 +1,12 @@
 <html>
   <head>
-    <meta title="<%= site.title %>">
+      <meta charset="utf-8">
+      <meta title="<%= site.title %>">
+      <link rel="stylesheet" href="/assets/css/site.css">
+      <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans">
+      <link rel="icon" href="/assets/images/favicon.svg">
+      <title><%= site.title %></title>
+    </head>
   </head>
   <body>
     <%= content %>

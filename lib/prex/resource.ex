@@ -1,6 +1,7 @@
 defmodule Prex.Resource do
   defstruct [:source, :path, :original_content, :content, :dest, procs: []]
 
+  require Logger
   import Prex.Helpers
 
   def init(%{root: root, source: source, dest: dest, compilers: compilers}, res_source) do
@@ -29,7 +30,9 @@ defmodule Prex.Resource do
     context = %{site: site, page: resource}
 
     resource = for c <- resource.procs, reduce: resource do
-      acc -> c.compile(site, acc, context)
+      acc ->
+        Logger.debug("[#{c}] Compiling #{resource.source} -> #{resource.dest}")
+        c.compile(site, acc, context)
     end
 
     {:ok, resource}

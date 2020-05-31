@@ -1,6 +1,7 @@
 defmodule Prex.Site do
   alias Prex.Resource
 
+  require Logger
   import Prex.Helpers
 
   @default_compilers %{
@@ -17,7 +18,7 @@ defmodule Prex.Site do
     data: nil,
     dest: "dest",
     title: "Site title",
-    layout: Path.expand("../../../lib/prex/templates/new_site/templates/layout.html.eex", __ENV__.file),
+    layout: "templates/layout.html.eex",
     resources: [],
     compilers: @default_compilers
   ]
@@ -34,13 +35,22 @@ defmodule Prex.Site do
       |> load_site_conf()
       |> detect_resources()
 
+    Logger.debug("Initialized site #{inspect site}")
+
     {:ok, site}
   end
 
   def compile(site = %__MODULE__{resources: resources}) do
+    Logger.debug("Compiling site #{inspect site}")
     resources = for r <- resources do
-      with {:ok, resource} <- Resource.compile(site, r), do: resource
+      Logger.debug("Compiling #{r.source}")
+      with {:ok, resource} <- Resource.compile(site, r) do
+        Logger.debug("Compiled #{resource.dest}!")
+        Logger.debug("--------")
+        resource
+      end
     end
+    Logger.debug("Compiled site #{site.title}!")
     {:ok, %{site | resources: resources}}
   end
 
@@ -90,7 +100,9 @@ defmodule Prex.Site do
     conf_file = Path.join(root, conf)
 
     case YamlElixir.read_from_file(conf_file) do
-      {:ok, data} -> %{site | layout: data["layout"]}
+      {:ok, data} ->
+        Logger.debug("Merging site data: #{inspect site} <- #{inspect data}")
+        Map.merge(site, data)
       {:error, _} -> site
     end
   end
