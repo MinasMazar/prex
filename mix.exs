@@ -8,7 +8,8 @@ defmodule Prex.MixProject do
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       escript: [main_module: Prex.CLI],
-      deps: deps()
+      deps: deps(),
+      aliases: aliases()
     ]
   end
 
@@ -29,4 +30,10 @@ defmodule Prex.MixProject do
       {:yaml_elixir, "~> 2.4.0"}
     ]
   end
+
+  defp aliases do
+    [
+      "escript.bi": ["escript.build", "escript.install"]
+    ]
+    end
 end

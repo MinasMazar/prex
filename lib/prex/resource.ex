@@ -1,5 +1,5 @@
 defmodule Prex.Resource do
-  defstruct [:source, :path, :original_content, :content, :dest, procs: []]
+  defstruct [:source, :path, :original_content, :content, :dest, procs: [], data: %{}]
 
   require Logger
   import Prex.Helpers
@@ -40,6 +40,7 @@ defmodule Prex.Resource do
 
   def build(_site, r = %__MODULE__{content: out, dest: dest}) when is_binary(out) do
     with outdir <- Path.dirname(dest) do
+      Logger.debug("Generating file for #{dest}")
       File.mkdir_p!(outdir)
       File.write!(dest, out)
       {:ok, r}
@@ -81,9 +82,9 @@ defmodule Prex.Resource do
   end
 
   def read(resource = %__MODULE__{source: source}) do
-    case File.read(source) do
-      {:ok, content} -> %{resource | original_content: content}
-      {:error, _reason} -> resource
+    case read_file_with_frontmatter(source) do
+      {:ok, frontmatter, content} -> %{resource | data: frontmatter, original_content: content}
+      {:error, reason} -> Map.put(resource, :errors, [reason])
     end
   end
 end

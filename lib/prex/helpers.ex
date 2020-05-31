@@ -40,4 +40,33 @@ defmodule Prex.Helpers do
       end
     end
   end
+
+  def read_file_with_frontmatter(path) do
+    case File.read(path) do
+      {:ok, content} -> read_front_matter(content)
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @match ~r{^---\n(.*?)\n---\n}
+  def read_front_matter(content) do
+    case Regex.run(@match, content) do
+      [_match, frontmatter] ->
+        {:ok, frontmatter} = YamlElixir.read_from_string(frontmatter)
+        content = String.replace(content, @match, "")
+        {:ok, atomize(frontmatter), content}
+      nil ->
+        {:ok, %{}, content}
+    end
+  end
+
+  def atomize(key) when is_atom(key), do: key
+
+  def atomize(key) when is_binary(key), do: String.to_atom(key)
+
+  def atomize(map), do: atomize(map, merge: %{})
+
+  def atomize(map, merge: init_map) do
+    for {key, val} <- map, into: init_map, do: {atomize(key), val}
+  end
 end

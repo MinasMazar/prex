@@ -20,7 +20,8 @@ defmodule Prex.CLI do
 
   def main(:compile) do
     {:ok, site} = Site.init(".")
-    {:ok, _compiled_site} = Site.compile(site)
+    {:ok, compiled_site} = Site.compile(site)
+    Site.build(compiled_site)
   end
 
   def main(:generate, path) do

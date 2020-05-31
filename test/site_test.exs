@@ -7,15 +7,21 @@ defmodule SiteTest do
 
   setup [:site_fixture]
 
-  test "init site", %{test_site_path: path} do
+  test "init site ~ site data", %{test_site_path: path} do
     {:ok, site} = Prex.Site.init(path)
     assert length(site.resources) == 3
-    assert site.layout =~ ~r[my_layout.html.eex]
+    assert site.layout =~ ~r[templates/layout.html.eex] # default value
+    assert site.merged_conf_yml == "site.yml"
+    assert site.merged_conf_exs == "site.exs"
+  end
 
+  test "init site ~ resources data", %{site: site, test_site_path: path} do
     index = Prex.Site.find(site, "index.html")
 
     assert index.procs == [Prex.Compilers.EEx, Prex.Compilers.Markdown, Prex.Compilers.WrapLayout]
     assert index.original_content =~ ~r[## This is Prex!]
+    assert index.content == nil
+    assert index.data == %{title: "This is Prex!"}
     refute File.exists?(index.dest)
 
     dockerfile = Prex.Site.find(site, "resources/Dockerfile")

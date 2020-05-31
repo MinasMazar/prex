@@ -1,5 +1,9 @@
+---
+title: This is Prex!
+---
+
 ## This is Prex!
 
 <p>
-  <h4>We're currently at <%= DateTime.utc_now %></h4>
+  <h4>We're <%= atomize("currently") %> at <%= DateTime.utc_now %></h4>
 </p>

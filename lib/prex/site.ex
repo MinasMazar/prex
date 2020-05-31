@@ -14,8 +14,6 @@ defmodule Prex.Site do
   defstruct [
     :root,
     source: "source",
-    conf: "site.yml",
-    data: nil,
     dest: "dest",
     title: "Site title",
     layout: "templates/layout.html.eex",
@@ -32,7 +30,7 @@ defmodule Prex.Site do
       %__MODULE__{root: root}
       |> Map.merge(site)
       |> assign_root(root)
-      |> load_site_conf()
+      |> load_conf()
       |> detect_resources()
 
     Logger.debug("Initialized site #{inspect site}")
@@ -96,14 +94,33 @@ defmodule Prex.Site do
     end
   end
 
-  def load_site_conf(site = %{root: root, conf: conf}) do
-    conf_file = Path.join(root, conf)
+  def load_conf(site) do
+    site
+    |> load_site_yaml()
+    |> load_site_exs()
+  end
 
-    case YamlElixir.read_from_file(conf_file) do
+  def load_site_yaml(site = %{root: root}) do
+    conf_file = Path.join(root, "site.yml")
+
+    case YamlElixir.read_from_file(conf_file, atoms: true) do
       {:ok, data} ->
         Logger.debug("Merging site data: #{inspect site} <- #{inspect data}")
         Map.merge(site, data)
       {:error, _} -> site
+    end
+  end
+
+  def load_site_exs(site = %{root: root}) do
+    conf_file = Path.join(root, "site.exs")
+
+    try do
+      with {data, _} <- Code.eval_file(conf_file) do
+        Map.merge(site, data)
+      end
+    rescue
+      CompileError -> Map.put(site, :errors, ["Compile error in #{conf_file}"])
+      Code.LoadError -> Map.put(site, :errors, ["Cannot load conf file at #{conf_file}"])
     end
   end
 

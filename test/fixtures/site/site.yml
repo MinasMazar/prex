@@ -1,1 +1,1 @@
-:layout: my_layout.html.eex
+:merged_conf_yml: site.yml

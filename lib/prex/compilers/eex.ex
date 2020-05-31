@@ -1,8 +1,21 @@
 defmodule Prex.Compilers.EEx do
+  require Logger
+
   def compile(_site, resource, context) do
-    with context <- Map.to_list(context),
-         content <- EEx.eval_string(resource.content, context) do
-      %{resource | content: content}
-    end
+    context = Map.to_list(context)
+
+    content =
+      resource.content
+      |> inject_helpers()
+      |> eval_eex(context)
+    %{resource | content: content}
+  end
+
+  defp inject_helpers(content) do
+    "<% import Prex.Helpers %>" <> content
+  end
+
+  defp eval_eex(content, context) do
+    EEx.eval_string(content, context)
   end
 end
