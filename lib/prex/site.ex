@@ -52,7 +52,9 @@ defmodule Prex.Site do
     {:ok, %{site | resources: resources}}
   end
 
-  def build(site = %__MODULE__{resources: resources}) do
+  def build(site = %__MODULE__{dest: dest, root: root, resources: resources}) do
+    File.rm_rf!(Path.expand(dest, root))
+
     resources = for r <- resources do
       with {:ok, resource} <- Resource.build(site, r), do: resource
     end
