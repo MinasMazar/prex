@@ -40,7 +40,7 @@ defmodule Prex.Resource do
 
   def build(_site, r = %__MODULE__{content: out, dest: dest}) when is_binary(out) do
     with outdir <- Path.dirname(dest) do
-      Logger.debug("Generating file for #{dest}")
+      Logger.debug("Generating file #{dest}")
       File.mkdir_p!(outdir)
       File.write!(dest, out)
       {:ok, r}
@@ -51,6 +51,11 @@ defmodule Prex.Resource do
     with {:ok, resource} <- compile(site, r) do
       build(site, resource)
     end
+  end
+
+  def destroy(r = %__MODULE__{dest: dest}) do
+    Logger.debug("Destroying file #{dest}")
+    with :ok <- File.rm(dest), do: r
   end
 
   def eval_dest(resource, filename, dest_root, []) do

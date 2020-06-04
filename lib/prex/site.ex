@@ -53,12 +53,16 @@ defmodule Prex.Site do
   end
 
   def build(site = %__MODULE__{dest: dest, root: root, resources: resources}) do
-    File.rm_rf!(Path.expand(dest, root))
-
     resources = for r <- resources do
       with {:ok, resource} <- Resource.build(site, r), do: resource
     end
     {:ok, %{site | resources: resources}}
+  end
+
+  def destroy(site = %__MODULE__, {resources: resources}) do
+    resources = for r <- resources do
+      Resource.destroy(r)
+    end
   end
 
   def detect_resources(site = %{root: root, source: source}) do

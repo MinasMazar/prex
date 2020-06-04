@@ -15,6 +15,16 @@ defmodule SiteTest do
     assert site.merged_conf_exs == "site.exs"
   end
 
+  @tag :skip
+  test "init site ~ site data with custom params", %{test_site_path: path} do
+    {:ok, site} = Prex.Site.init(path, root_url: "blog")
+    assert site.root_url == "blog"
+
+    index = Prex.Site.find(site, "index.html")
+
+    assert index.path == "blog/index.html"
+  end
+
   test "init site ~ resources data", %{site: site, test_site_path: path} do
     index = Prex.Site.find(site, "index.html")
 
@@ -22,6 +32,7 @@ defmodule SiteTest do
     assert index.original_content =~ ~r[## This is Prex!]
     assert index.content == nil
     assert index.data == %{title: "This is Prex!"}
+    assert index.path == "index.html"
     refute File.exists?(index.dest)
 
     dockerfile = Prex.Site.find(site, "resources/Dockerfile")
@@ -72,5 +83,13 @@ defmodule SiteTest do
 
     assert File.exists?(index.dest)
     assert File.exists?(dockerfile.dest)
+  end
+
+  test "destroy resource", %{site: site} do
+    index = Prex.Site.find(site, "index.html")
+
+    Prex.Resource.destroy(index)
+
+    refute File.exists?(index.dest)
   end
 end

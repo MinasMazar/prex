@@ -21,6 +21,7 @@ defmodule Prex.CLI do
   def main(:compile) do
     {:ok, site} = Site.init(".")
     {:ok, compiled_site} = Site.compile(site)
+    Prex.Site.destroy(site)
     Site.build(compiled_site)
   end
 
@@ -35,15 +36,6 @@ defmodule Prex.CLI do
     Server.start(site)
     Process.sleep(:infinity)
     {:ok, site}
-  end
-
-  def main(:clean, %Site{dest: dest}) do
-    File.rm_rf!(dest)
-  end
-
-  def main(:clean) do
-    {:ok, site} = Site.init(".")
-    main(:clean, site)
   end
 end
 
