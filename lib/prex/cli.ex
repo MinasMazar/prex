@@ -3,14 +3,15 @@ defmodule Prex.CLI do
 
   @new_site_template Path.expand("../templates/new_site", __ENV__.file)
   @generate_usage "Useage: prex generate <site name>"
-  @usage "Useage: prex <g|s|clean|c> - generate,server,clean,compile"
+  @usage "Useage: prex <g|s|clean|c|p> - generate,server,clean,compile,publish"
 
   def main([]), do: main(:compile)
-  def main(["g" <> _ , site_name]), do: main(:generate, site_name)
+  def main(["gen" <> _ , site_name]), do: main(:generate, site_name)
   def main(["s" <> _ | _]), do: main(:server)
   def main(["cle" <> _ | _]), do: main(:clean)
   def main(["c" <> _ | _]), do: main(:compile)
-  def main(["g" <> _]) do
+  def main(["pub" <> _ | _]), do: main(:publish)
+  def main(["us" <> _]) do
     IO.puts @generate_usage
   end
   def main(args) when is_list(args) do
@@ -21,7 +22,7 @@ defmodule Prex.CLI do
   def main(:compile) do
     {:ok, site} = Site.init(".")
     {:ok, compiled_site} = Site.compile(site)
-    Prex.Site.destroy(site)
+    Site.destroy(site)
     Site.build(compiled_site)
   end
 
@@ -36,6 +37,11 @@ defmodule Prex.CLI do
     Server.start(site)
     Process.sleep(:infinity)
     {:ok, site}
+  end
+
+  def main(:publish) do
+    {:ok, site} = main(:compile)
+    Site.publish(site)
   end
 end
 

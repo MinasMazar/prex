@@ -59,9 +59,22 @@ defmodule Prex.Site do
     {:ok, %{site | resources: resources}}
   end
 
-  def destroy(site = %__MODULE__, {resources: resources}) do
+  def destroy(site = %__MODULE__{resources: resources}) do
     resources = for r <- resources do
       Resource.destroy(r)
+    end
+  end
+
+  def publish(site = %__MODULE__{dest: dest}) do
+    with timestamp <- DateTime.utc_now() |> DateTime.to_string(),
+         commit_message <- "[Prex] auto publish after compile #{timestamp}" do
+      repo = Git.new dest
+      Git.add repo, "."
+      Git.commit repo, ["-m", commit_message]
+      case Git.push repo, ["origin", "master"] do
+        {:ok, repo} -> repo
+        {:error, %{message: message}} -> Logger.error("Cannot publish site: #{message}")
+      end
     end
   end
 
