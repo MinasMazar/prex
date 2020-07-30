@@ -48,15 +48,13 @@ defmodule Prex.Helpers do
     end
   end
 
-  @match ~r{^---\n(.*?)\n---\n}
+  @match ~r/^---(.*)---$/m
   def read_front_matter(content) do
-    case Regex.run(@match, content) do
-      [_match, frontmatter] ->
+    case String.split(content, ~r/\n-{3,}\n/, parts: 2) do
+      [frontmatter, content] ->
         {:ok, frontmatter} = YamlElixir.read_from_string(frontmatter)
-        content = String.replace(content, @match, "")
         {:ok, atomize(frontmatter), content}
-      nil ->
-        {:ok, %{}, content}
+      [content] -> {:ok, %{}, content}
     end
   end
 

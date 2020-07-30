@@ -9,7 +9,7 @@ defmodule SiteTest do
 
   test "init site ~ site data", %{test_site_path: path} do
     {:ok, site} = Prex.Site.init(path)
-    assert length(site.resources) == 3
+    assert length(site.resources) == 4
     assert site.layout =~ ~r[templates/layout.html.eex] # default value
     assert site.merged_conf_yml == "site.yml"
     assert site.merged_conf_exs == "site.exs"
@@ -47,7 +47,7 @@ defmodule SiteTest do
 
     {:ok, site} = Prex.Site.init(site)
     assert site.layout =~ ~r[layout.html.eex]
-    assert length(site.resources) == 3
+    assert length(site.resources) == 4
   end
 
   test "compile site", %{site: site} do
@@ -83,6 +83,16 @@ defmodule SiteTest do
 
     assert File.exists?(index.dest)
     assert File.exists?(dockerfile.dest)
+  end
+
+  test "dont't generate drafts", %{site: site} do
+    draft = Prex.Site.find(site, "draft.html")
+
+    refute File.exists?(draft.dest)
+
+    Prex.Site.build(site)
+
+    refute File.exists?(draft.dest)
   end
 
   test "destroy resource", %{site: site} do

@@ -38,6 +38,10 @@ defmodule Prex.Resource do
     {:ok, resource}
   end
 
+  def build(_site, r = %__MODULE__{data: %{draft: true}}) do
+    {:ok, r}
+  end
+
   def build(_site, r = %__MODULE__{content: out, dest: dest}) when is_binary(out) do
     with outdir <- Path.dirname(dest) do
       Logger.debug("Generating file #{dest}")
