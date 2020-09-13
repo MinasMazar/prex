@@ -135,7 +135,7 @@ defmodule Prex.Site do
 
     try do
       with {data, _} <- Code.eval_file(conf_file) do
-        Map.merge(site, data)
+        if is_map(data), do: Map.merge(site, data), else: site
       end
     rescue
       CompileError -> Map.put(site, :errors, ["Compile error in #{conf_file}"])
