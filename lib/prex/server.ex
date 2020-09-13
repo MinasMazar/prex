@@ -1,4 +1,5 @@
 defmodule Prex.Server do
+  require Logger
   require EEx
 
   use Plug.Router
@@ -37,6 +38,7 @@ defmodule Prex.Server do
   end
 
   def start(site) do
+    Logger.info("Starting server..")
     Plug.Cowboy.http(__MODULE__, [site], port: 4000)
   end
 
