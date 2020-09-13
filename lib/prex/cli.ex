@@ -7,19 +7,26 @@ defmodule Prex.CLI do
 
   def main([]), do: main(:compile)
   def main(["gen" <> _ , site_name]), do: main(:generate, site_name)
-  def main(["s" <> _ | _]), do: main(:server)
-  def main(["cle" <> _ | _]), do: main(:clean)
-  def main(["c" <> _ | _]), do: main(:compile)
-  def main(["pub" <> _ | _]), do: main(:publish)
-  def main(["us" <> _]) do
-    IO.puts @generate_usage
+  def main(["s" <> _ | _]), do: main(:server, [])
+  def main(["cle" <> _ | _]), do: main(:clean, [])
+  def main(["c" <> _ | _]), do: main(:compile, [])
+  def main(["pub" <> _ | _]), do: main(:publish, [])
+  def main([cmd | args]) do
+    with cmd <- String.to_atom(cmd) do
+      try do
+        main(cmd, args)
+      rescue
+        FunctionClauseError -> main(:usage, args)
+      end
+    end
   end
-  def main(args) when is_list(args) do
+
+  def main(:usage, args) do
     IO.puts "Given: #{inspect args}"
     IO.puts @usage
   end
 
-  def main(:compile) do
+  def main(:compile, _) do
     {:ok, site} = Site.init(".")
     {:ok, compiled_site} = Site.compile(site)
     Site.destroy(site)
@@ -32,16 +39,20 @@ defmodule Prex.CLI do
     Site.init(path)
   end
 
-  def main(:server) do
-    {:ok, site} = main(:compile)
+  def main(:server, _) do
+    {:ok, site} = main(:compile, [])
     Server.start(site)
     Process.sleep(:infinity)
     {:ok, site}
   end
 
-  def main(:publish) do
-    {:ok, site} = main(:compile)
+  def main(:publish, _) do
+    {:ok, site} = main(:compile, [])
     Site.publish(site)
+  end
+
+  def main(:print_env, _) do
+    IO.puts(Mix.env)
   end
 end
 
