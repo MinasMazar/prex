@@ -42,6 +42,7 @@ defmodule Prex.Site do
       |> assign_root(root)
       |> load_conf()
       |> detect_resources()
+      |> execute_callback()
 
     Logger.debug("Initialized site #{inspect site}")
 
@@ -155,5 +156,14 @@ defmodule Prex.Site do
 
   defp assign_root(site, root) do
     %{site | root: Path.expand(root)}
+  end
+
+  defp execute_callback(site = %{after: callback}) when is_function(callback) do
+    callback.(site)
+    site
+  end
+
+  defp execute_callback(site) do
+    site
   end
 end

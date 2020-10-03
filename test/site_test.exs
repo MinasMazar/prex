@@ -20,6 +20,11 @@ defmodule SiteTest do
     assert site.custom_param == "custom"
   end
 
+  test "init site ~ site data with after callback", %{test_site_path: path} do
+    {:ok, site} = Prex.Site.init(path)
+    assert_receive :executed_after_callback
+  end
+
   test "init site ~ resources data", %{site: site, test_site_path: path} do
     index = Prex.Site.find(site, "index.html")
 
