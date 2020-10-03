@@ -15,14 +15,9 @@ defmodule SiteTest do
     assert site.merged_conf_exs == "site.exs"
   end
 
-  @tag :skip
   test "init site ~ site data with custom params", %{test_site_path: path} do
-    {:ok, site} = Prex.Site.init(path, root_url: "blog")
-    assert site.root_url == "blog"
-
-    index = Prex.Site.find(site, "index.html")
-
-    assert index.path == "blog/index.html"
+    {:ok, site} = Prex.Site.init(path, custom_param: "custom")
+    assert site.custom_param == "custom"
   end
 
   test "init site ~ resources data", %{site: site, test_site_path: path} do

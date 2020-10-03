@@ -25,6 +25,16 @@ defmodule Prex.Site do
     init(%{root: site_path})
   end
 
+  def init(site_path, opts) when is_binary(site_path) and is_list(opts) do
+    with opts <- Enum.into(opts, %{}) do
+      init(Map.put(opts, :root, site_path))
+    end
+  end
+
+  def init(site_path, opts) when is_binary(site_path) and is_map(opts) do
+    init(Map.put(opts, :root, site_path))
+  end
+
   def init(site = %{root: root}) when is_map(site) do
     site =
       %__MODULE__{root: root}
