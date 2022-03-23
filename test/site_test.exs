@@ -21,11 +21,11 @@ defmodule SiteTest do
   end
 
   test "init site ~ site data with after callback", %{test_site_path: path} do
-    {:ok, site} = Prex.Site.init(path)
+    {:ok, _site} = Prex.Site.init(path)
     assert_receive :executed_after_callback
   end
 
-  test "init site ~ resources data", %{site: site, test_site_path: path} do
+  test "init site ~ resources data", %{site: site} do
     index = Prex.Site.find(site, "index.html")
 
     assert index.procs == [Prex.Compilers.EEx, Prex.Compilers.Markdown, Prex.Compilers.WrapLayout]
