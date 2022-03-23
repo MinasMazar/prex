@@ -2,8 +2,8 @@ defmodule Prex.CLI do
   alias Prex.{Server, Site}
 
   @new_site_template Path.expand("../templates/new_site", __ENV__.file)
-  @generate_usage "Useage: prex generate <site name>"
-  @usage "Useage: prex <g|s|clean|c|p> - generate,server,clean,compile,publish"
+  @generate_usage "Usage: prex generate <site name>"
+  @usage "Usage: prex <gen|s|cle|c|pub> - generate,server,clean,compile,publish"
 
   def main([]), do: main(:compile)
   def main(["gen" <> _ , site_name]), do: main(:generate, site_name)
