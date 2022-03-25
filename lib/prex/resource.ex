@@ -38,11 +38,11 @@ defmodule Prex.Resource do
     {:ok, resource}
   end
 
-  def build(_site, r = %__MODULE__{data: %{draft: true}}) do
+  def precompile(_site, r = %__MODULE__{data: %{draft: true}}) do
     {:ok, r}
   end
 
-  def build(_site, r = %__MODULE__{content: out, dest: dest}) when is_binary(out) do
+  def precompile(_site, r = %__MODULE__{content: out, dest: dest}) when is_binary(out) do
     with outdir <- Path.dirname(dest) do
       Logger.debug("Generating file #{dest}")
       File.mkdir_p!(outdir)
@@ -51,9 +51,9 @@ defmodule Prex.Resource do
     end
   end
 
-  def build(site, r = %__MODULE__{content: nil}) do
+  def precompile(site, r = %__MODULE__{content: nil}) do
     with {:ok, resource} <- compile(site, r) do
-      build(site, resource)
+      precompile(site, resource)
     end
   end
 

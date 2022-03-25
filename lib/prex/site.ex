@@ -67,9 +67,9 @@ defmodule Prex.Site do
     {:ok, %{site | resources: resources}}
   end
 
-  def build(site = %__MODULE__{dest: dest, root: root, resources: resources}) do
+  def precompile(site = %__MODULE__{dest: dest, root: root, resources: resources}) do
     resources = for r <- resources do
-      with {:ok, resource} <- Resource.build(site, r), do: resource
+      with {:ok, resource} <- Resource.precompile(site, r), do: resource
     end
     {:ok, %{site | resources: resources}}
   end

@@ -64,7 +64,7 @@ defmodule SiteTest do
 
     assert index.original_content =~ ~r[## This is Prex!]
 
-    {:ok, _site} = Prex.Site.build(site)
+    {:ok, _site} = Prex.Site.precompile(site)
 
     assert File.exists?(index.dest)
   end
@@ -74,7 +74,7 @@ defmodule SiteTest do
 
     refute File.exists?(draft.dest)
 
-    Prex.Site.build(site)
+    Prex.Site.precompile(site)
 
     refute File.exists?(draft.dest)
   end

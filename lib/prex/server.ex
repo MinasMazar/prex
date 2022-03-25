@@ -19,7 +19,7 @@ defmodule Prex.Server do
 
   match _ do
     site = prepare_site()
-    path = build_resource_pattern(conn.request_path)
+    path = precompile_resource_pattern(conn.request_path)
     case Prex.Site.find(site, path) do
       nil -> send_resp(conn, 400, EEx.eval_string(@not_found_body, site: site, path: path))
 
@@ -46,7 +46,7 @@ defmodule Prex.Server do
     Prex.Site
   end
 
-  def build_resource_pattern(request_path) do
+  def precompile_resource_pattern(request_path) do
     String.replace(request_path, ~r[^/], "")
   end
 
