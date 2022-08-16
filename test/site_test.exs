@@ -11,6 +11,7 @@ defmodule SiteTest do
     {:ok, site} = Prex.Site.init(path)
     assert length(site.resources) == 4
     assert site.layout =~ ~r[templates/layout.html.eex] # default value
+    assert site.title == "Site title"
     assert site.merged_conf_yml == "site.yml"
     assert site.merged_conf_exs == "site.exs"
   end
