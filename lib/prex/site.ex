@@ -51,6 +51,7 @@ defmodule Prex.Site do
 
   def compile(site = %__MODULE__{resources: resources}) do
     Logger.debug("Compiling site #{inspect site}")
+    Logger.info("Compiling site..\n#{inspect site")
     resources = for r <- resources do
       Logger.debug("Compiling #{r.source}")
       with {:ok, resource} <- Resource.compile(site, r) do
