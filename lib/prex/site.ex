@@ -14,7 +14,9 @@ defmodule Prex.Site do
   defstruct [
     :root,
     source: "source",
+    source_path: nil,
     dest: "dest",
+    dest_path: nil,
     title: "Site title",
     layout: "templates/layout.html.eex",
     resources: [],
@@ -39,7 +41,7 @@ defmodule Prex.Site do
     site =
       %__MODULE__{root: root}
       |> Map.merge(site)
-      |> assign_root(root)
+      |> assign_dirs(root)
       |> load_conf()
       |> detect_resources()
       |> execute_callback()
@@ -51,7 +53,7 @@ defmodule Prex.Site do
 
   def compile(site = %__MODULE__{resources: resources}) do
     Logger.debug("Compiling site #{inspect site}")
-    Logger.info("Compiling site..\n#{inspect site")
+    Logger.info("Compiling site..\n#{inspect site}")
     resources = for r <- resources do
       Logger.debug("Compiling #{r.source}")
       with {:ok, resource} <- Resource.compile(site, r) do
@@ -71,21 +73,25 @@ defmodule Prex.Site do
     {:ok, %{site | resources: resources}}
   end
 
-  def destroy(site = %__MODULE__{resources: resources}) do
+  def destroy(%__MODULE__{resources: resources}) do
     resources = for r <- resources do
       Resource.destroy(r)
     end
   end
 
-  def publish(site = %__MODULE__{dest: dest}) do
+  def publish(site), do: publish(site, stub_git_push: false)
+  def publish(%__MODULE__{dest_path: dest_path}, stub_git_push: stub_git_push) do
     with timestamp <- DateTime.utc_now() |> DateTime.to_string(),
          commit_message <- "[Prex] auto publish after compile #{timestamp}" do
-      repo = Git.new dest
-      Git.add repo, "."
+      Logger.info("Publishing via git: #{commit_message}")
+      File.mkdir(dest_path)
+      repo = Git.new(dest_path)
+      Git.add(repo, ".")
       Git.commit repo, ["-m", commit_message]
-      case Git.push repo, ["origin", "master"] do
+      case !stub_git_push && Git.push repo, ["origin", "master"] do
         {:ok, repo} -> repo
         {:error, %{message: message}} -> Logger.error("Cannot publish site: #{message}")
+        false -> Logger.debug("simulate mode: don't push via git")
       end
     end
   end
@@ -155,8 +161,16 @@ defmodule Prex.Site do
     end
   end
 
-  defp assign_root(site, root) do
-    %{site | root: Path.expand(root)}
+  defp assign_dirs(site, root) do
+    Map.merge(
+      site,
+      %{
+        root: Path.expand(root),
+        dest_path: Path.expand(site.dest, root),
+        source_path: Path.expand(site.
+          source, root)
+      }
+    )
   end
 
   defp execute_callback(site = %{after: callback}) when is_function(callback) do
