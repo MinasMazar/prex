@@ -39,7 +39,7 @@ defmodule Prex.Server do
 
   def start(site) do
     Logger.info("Starting server..")
-    Plug.Cowboy.http(__MODULE__, [site], port: 4000)
+    Plug.Cowboy.http(__MODULE__, [site], port: port())
   end
 
   def prex_site do
@@ -48,5 +48,9 @@ defmodule Prex.Server do
 
   def build_resource_pattern(request_path) do
     String.replace(request_path, ~r[^/], "")
+  end
+
+  def port do
+    String.to_integer(System.get_env("PREX_SERVER_PORT", "4000"))
   end
 end
