@@ -102,7 +102,7 @@ defmodule SiteTest do
   end
 
   test "publish site via Git", %{site: site} do
-    result = Prex.Site.publish(site, stub_git_push: true)
+    result = Prex.Site.publish(site, simulate: true)
 
     assert result
   end

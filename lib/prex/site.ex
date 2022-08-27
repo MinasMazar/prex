@@ -20,7 +20,8 @@ defmodule Prex.Site do
     title: "Site title",
     layout: "templates/layout.html.eex",
     resources: [],
-    compilers: @default_compilers
+    compilers: @default_compilers,
+    errors: []
   ]
 
   def init(site_path) when is_binary(site_path) do
@@ -79,8 +80,9 @@ defmodule Prex.Site do
     end
   end
 
-  def publish(site), do: publish(site, stub_git_push: false)
-  def publish(%__MODULE__{dest_path: dest_path}, stub_git_push: stub_git_push) do
+  def publish(site), do: publish(site, simulate: false)
+  def publish(site = %__MODULE__{dest_path: dest_path}, simulate: true), do: {:ok, site}
+  def publish(site = %__MODULE__{dest_path: dest_path}, simulate: false) do
     with timestamp <- DateTime.utc_now() |> DateTime.to_string(),
          commit_message <- "[Prex] auto publish after compile #{timestamp}" do
       Logger.info("Publishing via git: #{commit_message}")
@@ -88,10 +90,11 @@ defmodule Prex.Site do
       repo = Git.new(dest_path)
       Git.add(repo, ".")
       Git.commit repo, ["-m", commit_message]
-      case !stub_git_push && Git.push repo, ["origin", "master"] do
-        {:ok, repo} -> repo
-        {:error, %{message: message}} -> Logger.error("Cannot publish site: #{message}")
-        false -> Logger.debug("simulate mode: don't push via git")
+      case Git.push repo, ["origin", "master"] do
+        {:ok, repo} -> {:ok, site}
+        {:error, %{message: message}} ->
+          error = "Cannot publish site: #{message}"
+          {:error, append_error(site, error)}
       end
     end
   end
@@ -144,7 +147,7 @@ defmodule Prex.Site do
       {:ok, data} ->
         Logger.debug("Merging site data: #{inspect site} <- #{inspect data}")
         Map.merge(site, data)
-      {:error, _} -> site
+      {:error, error} -> append_error(site, error)
     end
   end
 
@@ -180,5 +183,10 @@ defmodule Prex.Site do
 
   defp execute_callback(site) do
     site
+  end
+
+  defp append_error(site, error) do
+    Logger.debug(error)
+    %{site | errors: [error | site.errors]}
   end
 end
