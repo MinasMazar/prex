@@ -16,6 +16,6 @@ defmodule Prex.Compilers.EEx do
   end
 
   defp eval_eex(content, context) do
-    EEx.eval_string(content, context)
+    EEx.eval_string(content, assigns: context)
   end
 end

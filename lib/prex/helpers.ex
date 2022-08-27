@@ -52,7 +52,7 @@ defmodule Prex.Helpers do
   def read_front_matter(content) do
     case String.split(content, ~r/\n-{3,}\n/, parts: 2) do
       [frontmatter, content] ->
-        {:ok, frontmatter} = YamlElixir.read_from_string(frontmatter)
+        {:ok, frontmatter} = YamlElixir.read_from_string(frontmatter, atomize_keys: true)
         {:ok, atomize(frontmatter), content}
       [content] -> {:ok, %{}, content}
     end
