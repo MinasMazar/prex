@@ -1,6 +1,7 @@
 %{
   merged_conf_exs: "site.exs",
-  after: fn _ctx ->
+  after: fn ctx ->
     send(self(), :executed_after_callback)
+    {:ok, ctx}
   end
 }

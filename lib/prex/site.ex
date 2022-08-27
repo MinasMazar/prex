@@ -177,8 +177,10 @@ defmodule Prex.Site do
   end
 
   defp execute_callback(site = %{after: callback}) when is_function(callback) do
-    callback.(site)
-    site
+    case callback.(site) do
+      {:ok, site} -> site
+      {:error, error} -> append_error(site, error)
+    end
   end
 
   defp execute_callback(site) do
