@@ -27,7 +27,7 @@ defmodule Prex.Resource do
   end
 
   def compile(site, resource = %__MODULE__{content: content}) when is_binary(content) do
-    context = %{site: site, page: resource}
+    context = %{site: site, page: resource, resource: resource}
 
     resource = for c <- resource.procs, reduce: resource do
       acc ->

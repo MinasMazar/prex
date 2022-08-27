@@ -1,8 +1,6 @@
 defmodule HelpersTest do
   use ExUnit.Case
-
   import PrexTest.Helpers
-
   setup :site_fixture
 
   test "Helpers.find", %{site: site} do

@@ -1,10 +1,7 @@
 defmodule SiteTest do
   use ExUnit.Case
-
   import PrexTest.Helpers
-
   doctest Prex.Site
-
   setup [:site_fixture]
 
   test "init site ~ site data", %{test_site_path: path} do
