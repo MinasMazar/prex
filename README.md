@@ -1,21 +1,23 @@
 # Prex
 
-**TODO: Add description**
+Prex is a static site generator written in Elixir.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `prex` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:prex, "~> 0.1.0"}
-  ]
-end
+```sh
+$ git clone git@github.com:MinasMazar/prex.git
+$ cd prex/
+$ mix escript.build escript.install
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/prex](https://hexdocs.pm/prex).
+## Usage
 
+```sh
+prex new my_blog
+cd prex/
+prex compile
+```
+
+## Publish
+
+Currently the only implementation supported for publishing is Github pages.
