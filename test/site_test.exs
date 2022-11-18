@@ -9,8 +9,9 @@ defmodule SiteTest do
     assert length(site.resources) == 4
     assert site.layout =~ ~r[templates/layout.html.eex] # default value
     assert site.title == "Site title"
-    assert site.merged_conf_yml == "site.yml"
-    assert site.merged_conf_exs == "site.exs"
+    assert site.exs_config == "exs"
+    assert site.yml_config == "yml"
+    assert site.merged_config == "exs"
   end
 
   test "init site ~ site data with custom params", %{test_site_path: path} do
@@ -55,32 +56,17 @@ defmodule SiteTest do
 
     {:ok, site} = Prex.Site.compile(site)
 
-    index = Prex.Site.find(site, "index.html")
-
-    assert index.procs == [Prex.Compilers.EEx, Prex.Compilers.Markdown, Prex.Compilers.WrapLayout]
-    assert index.content =~ ~r[<h2>This is Prex!</h2>]
-    assert index.content =~ ~r[<html>]
-    assert index.content =~ ~r[<body>]
     refute File.exists?(index.dest)
-
-    dockerfile = Prex.Site.find(site, "resources/Dockerfile")
-
-    assert dockerfile.procs == []
-    assert dockerfile.original_content =~ ~r[# This is a Dockerfile]
-    refute File.exists?(dockerfile.dest)
   end
 
-  test "generate resource", %{site: site} do
+  test "build site", %{site: site} do
     index = Prex.Site.find(site, "index.html")
-    dockerfile = Prex.Site.find(site, "resources/Dockerfile")
 
-    refute File.exists?(index.dest)
-    refute File.exists?(dockerfile.dest)
+    assert index.original_content =~ ~r[## This is Prex!]
 
-    Prex.Site.build(site)
+    {:ok, site} = Prex.Site.build(site)
 
     assert File.exists?(index.dest)
-    assert File.exists?(dockerfile.dest)
   end
 
   test "dont't generate drafts", %{site: site} do
