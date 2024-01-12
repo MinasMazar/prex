@@ -2,11 +2,11 @@ defmodule Prex.CLI do
   alias Prex.{Server, Site}
 
   @new_site_template Path.expand("../templates/new_site", __ENV__.file)
-  @generate_usage "Usage: prex generate <site name>"
-  @usage "Usage: prex <gen|s|cle|c|pub> - generate,server,clean,compile,publish"
+  @generate_usage "Usage: prex new <site name>"
+  @usage "Usage: prex <new|s|cle|c|pub> - new,server,clean,compile,publish"
 
   def main([]), do: main(:compile)
-  def main(["gen" <> _ , site_name]), do: main(:generate, site_name)
+  def main(["new" <> _ , site_name]), do: main(:new, site_name)
   def main(["s" <> _ | _]), do: main(:server, [])
   def main(["cle" <> _ | _]), do: main(:clean, [])
   def main(["c" <> _ | _]), do: main(:compile, [])
@@ -33,7 +33,7 @@ defmodule Prex.CLI do
     Site.precompile(compiled_site)
   end
 
-  def main(:generate, path) do
+  def main(:new, path) do
     File.mkdir!(path)
     File.cp_r!(@new_site_template, path)
     Site.init(path)
